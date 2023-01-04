@@ -1,6 +1,6 @@
 <deploy>
 	<description>Modul til skolevej</description>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<copydir fromdir="[module:school_road.dir]/internal/dist" todir="[cbinfo.wwwroot.dir]/modules/school_road" />
 	<param name="module.school_road.route.profile">skolerute</param>
 	<param name="module.school_road.logo">/images/custom/Lolland9.png</param>

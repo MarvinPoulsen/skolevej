@@ -17,7 +17,7 @@ const calcDistance = (actually, requirements) => {
         return toPrettyNumber(act100 / 10);
     }
 };
-interface SpsrouteProps {
+interface SummaryProps {
     travelDistanceInMeter: number;
     instructions: string[];
     distance: number;
@@ -25,19 +25,25 @@ interface SpsrouteProps {
     schoolName: string;
     schoolAddress: string;
     grade: string;
+    district?: string;
 }
 
-const Spsroute: FC = (props: SpsrouteProps) => {
+const Summary: FC = (props: SummaryProps) => {
+    console.log(props)
     const [isActive, setIsActive] = useState<boolean>(false);
 
     const entitled =
-        props.travelDistanceInMeter > props.distance
-            ? 'message is-success'
-            : 'message is-danger';
+        props.district ?
+            props.travelDistanceInMeter > props.distance
+                ? 'message is-success'
+                : 'message is-danger'
+            :'message is-danger';
     const header =
-        props.travelDistanceInMeter > props.distance
-            ? 'Berettiget til tilskud'
-            : 'Ikke berettiget til tilskud';
+        props.district ?
+            props.travelDistanceInMeter > props.distance
+                ? 'Berettiget til tilskud'
+                : 'Ikke berettiget til tilskud'
+            :'Udenfor skoledistriktet, ikke berettiget til tilskud';
 
     const handleClick = () => {
         setIsActive(true);
@@ -54,6 +60,7 @@ const Spsroute: FC = (props: SpsrouteProps) => {
             <article className={entitled}>
                 <div className="message-header">
                     <p>{header}</p>
+
                 </div>
                 <div className="message-body">
                     <div className="content">
@@ -89,4 +96,4 @@ const Spsroute: FC = (props: SpsrouteProps) => {
     );
 };
 
-export default Spsroute;
+export default Summary;

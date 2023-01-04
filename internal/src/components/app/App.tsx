@@ -3,7 +3,7 @@ import Map from '../minimap/Minimap';
 import Form from '../form/Form';
 import Navbar from '../navbar/Navbar';
 import { schoolsMinimapId } from '../../../config';
-import Spsroute from '../spsroute/Spsroute';
+import Summary from '../summary/Summary';
 import './app.scss';
 
 export interface SkoleDataRow {
@@ -55,22 +55,9 @@ const App: FC = () => {
         const kommunenummer = minimap.current.getSession().getParam("config.kommunenr.firecifre");
         setLogo(siteUrl+logoUrl)
         setKommunenr(kommunenummer)
-        const dsDistrict = ses.getDatasource('lk_school_road_skoledistrikter');
-        dsDistrict.execute({ command: 'read' }, (rows: DistrikterDataRow[]) => {
-            const data = rows.map((element) => {
-                const feature = element.shape_wkt.wkt;
-                return {
-                    id: parseInt(element.id as string),
-                    district: element.udd_distrikt_navn,
-                    feature
-                }
-            });
-            setDistrikterData(data);
-        });
     };
-    console.log('distrikterData: ', distrikterData)
 
-    const spsRoute = async (
+    const calculate = async (
         schoolId: number,
         toCoord: string,
         distance: string,
@@ -82,21 +69,28 @@ const App: FC = () => {
         const routeProfile = minimap.current.getSession().getParam("module.school_road.route.profile");
         const school = skoleData.find((item) => item.id === schoolId);
         const url = `${siteUrl}${apiUrl}/route?profile=${routeProfile}&from=${school.latLong}&to=${toCoord}&srs=epsg:25832&lang=da`;
-        console.log(url)
         const req = await fetch(url);
         const result = await req.json();
-        const res = {
-            ...result,
-            distance: parseInt(distance),
-            endAddress,
-            schoolName: school.skole,
-            schoolAddress: school.adresse,
-            grade: grade,
-        };
-        setResult(res);
         minimap.current
           .getMapControl()
           .setMarkingGeometry(result.wkt, true, null, 100);
+        const addressCoords = toCoord.split(',')
+        const addressWkt = `POINT(${addressCoords[0]} ${addressCoords[1]})`;
+        const dsDistrict = minimap.current.getSession().getDatasource('lk_school_road_skoledistrikter');
+        dsDistrict.execute({ command: 'read-intersects', school_id: schoolId, address_wkt: addressWkt}, (rows: DistrikterDataRow[]) => {
+            const district = rows.length > 0 ? rows[0].udd_distrikt_navn : null;
+            const res = {
+                ...result,
+                distance: parseInt(distance),
+                endAddress,
+                schoolName: school.skole,
+                schoolAddress: school.adresse,
+                grade: grade,
+                district,
+            };
+            setResult(res);
+        });
+
     };
     
     return (
@@ -112,13 +106,13 @@ const App: FC = () => {
                         <div className="column is-4 box">
                             {kommunenr && <Form 
                                 data={skoleData} 
-                                onCalculate={spsRoute} 
+                                onCalculate={calculate} 
                                 kommunenr={kommunenr}
                             />}
                         </div>
                         <div className="column is-4 init-height">
                             {result && (
-                                <Spsroute
+                                <Summary
                                     travelDistanceInMeter={
                                         result.travelDistanceInMeter
                                     }
@@ -128,6 +122,7 @@ const App: FC = () => {
                                     schoolName={result.schoolName}
                                     schoolAddress={result.schoolAddress}
                                     grade={result.grade}
+                                    district ={result.district}
                                 />
                             )}
                             {!result && (
