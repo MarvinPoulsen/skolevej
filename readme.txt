@@ -50,3 +50,4 @@ CHANGES
 --------------------
 Date		Version		Ini		Description
 2022-11-16	1.0.0		MARPO		Modulet oprettet
+2022-12-22	1.1.0		MARPO		Rutebeskrivelse tilføjet
