@@ -10,7 +10,7 @@ const Travelguide: FC = (props: TravelguideProps) => {
 
     const instructions = props.instructions;
     const travelGuide: Element[] = [];
-    for (const instruction of instructions) {
+    for (const [index,instruction] of instructions.entries()) {
         const textArr = instruction.split(',');
         const lastTextArr = textArr[textArr.length - 1].split(' ');
         const distance = parseFloat(lastTextArr[lastTextArr.length - 2]);
@@ -22,7 +22,6 @@ const Travelguide: FC = (props: TravelguideProps) => {
             lastTextArr[lastTextArr.length - 1] = 'meter';
             const withSpaces = lastTextArr.join(' ');
             if (textArr[0].split(' ')[0] === 'fortsæt') {
-                console.log(textArr[0]);
                 refinedInstruction =
                     textArr[0] +
                     ' ' +
@@ -38,7 +37,7 @@ const Travelguide: FC = (props: TravelguideProps) => {
             refinedInstruction = textArr[0] + ' og' + withSpaces;
         }
         travelGuide.push(
-            <p className="panel-block">
+            <p className="panel-block" key={index}>
                 {/* <span className="panel-icon">
             <i
                 className="fas fa-book"
