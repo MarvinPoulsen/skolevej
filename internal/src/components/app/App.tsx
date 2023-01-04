@@ -15,6 +15,11 @@ export interface SkoleDataRow {
     by: string;
     shape_wkt: { wkt: string };
 }
+export interface DistrikterDataRow {
+    id: string;
+    udd_distrikt_navn: string;
+    shape_wkt: { wkt: string };
+}
 
 const App: FC = () => {
     const minimap: any = useRef(null);
@@ -22,6 +27,7 @@ const App: FC = () => {
     const [result, setResult] = useState();
     const [logo, setLogo] = useState();
     const [kommunenr, setKommunenr] = useState();
+    const [distrikterData, setDistrikterData] = useState([]);
 
     const onMapReady = (mm) => {
         minimap.current = mm;
@@ -46,10 +52,23 @@ const App: FC = () => {
         });
         const siteUrl = minimap.current.getSession().getParam("cbinfo.site.url");
         const logoUrl = minimap.current.getSession().getParam("module.school_road.logo");
-        const kommunenr = minimap.current.getSession().getParam("config.kommunenr.firecifre");
+        const kommunenummer = minimap.current.getSession().getParam("config.kommunenr.firecifre");
         setLogo(siteUrl+logoUrl)
-        setKommunenr(kommunenr)
+        setKommunenr(kommunenummer)
+        const dsDistrict = ses.getDatasource('lk_school_road_skoledistrikter');
+        dsDistrict.execute({ command: 'read' }, (rows: DistrikterDataRow[]) => {
+            const data = rows.map((element) => {
+                const feature = element.shape_wkt.wkt;
+                return {
+                    id: parseInt(element.id as string),
+                    district: element.udd_distrikt_navn,
+                    feature
+                }
+            });
+            setDistrikterData(data);
+        });
     };
+    console.log('distrikterData: ', distrikterData)
 
     const spsRoute = async (
         schoolId: number,
@@ -63,6 +82,7 @@ const App: FC = () => {
         const routeProfile = minimap.current.getSession().getParam("module.school_road.route.profile");
         const school = skoleData.find((item) => item.id === schoolId);
         const url = `${siteUrl}${apiUrl}/route?profile=${routeProfile}&from=${school.latLong}&to=${toCoord}&srs=epsg:25832&lang=da`;
+        console.log(url)
         const req = await fetch(url);
         const result = await req.json();
         const res = {
