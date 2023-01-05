@@ -27,7 +27,6 @@ const App: FC = () => {
     const [result, setResult] = useState();
     const [logo, setLogo] = useState();
     const [kommunenr, setKommunenr] = useState();
-    const [distrikterData, setDistrikterData] = useState([]);
 
     const onMapReady = (mm) => {
         minimap.current = mm;
@@ -50,11 +49,11 @@ const App: FC = () => {
             });
             setSkoleData(data);
         });
-        const siteUrl = minimap.current.getSession().getParam("cbinfo.site.url");
-        const logoUrl = minimap.current.getSession().getParam("module.school_road.logo");
-        const kommunenummer = minimap.current.getSession().getParam("config.kommunenr.firecifre");
-        setLogo(siteUrl+logoUrl)
-        setKommunenr(kommunenummer)
+        const siteUrl = minimap.current.getSession().getParam('cbinfo.site.url');
+        const logoUrl = minimap.current.getSession().getParam('module.school_road.logo');
+        const kommunenummer = minimap.current.getSession().getParam('config.kommunenr.firecifre');
+        setLogo(siteUrl + logoUrl);
+        setKommunenr(kommunenummer);
     };
 
     const calculate = async (
@@ -64,21 +63,25 @@ const App: FC = () => {
         endAddress: string,
         grade: string
     ) => {
-        const siteUrl = minimap.current.getSession().getParam("cbinfo.site.url");
-        const apiUrl = minimap.current.getSession().getParam("module.spsroute.service.url");
-        const routeProfile = minimap.current.getSession().getParam("module.school_road.route.profile");
+        const siteUrl = minimap.current.getSession().getParam('cbinfo.site.url');
+        const apiUrl = minimap.current.getSession().getParam('module.spsroute.service.url');
+        const routeProfile = minimap.current.getSession().getParam('module.school_road.route.profile');
         const school = skoleData.find((item) => item.id === schoolId);
         const url = `${siteUrl}${apiUrl}/route?profile=${routeProfile}&from=${school.latLong}&to=${toCoord}&srs=epsg:25832&lang=da`;
         const req = await fetch(url);
         const result = await req.json();
-        minimap.current
-          .getMapControl()
-          .setMarkingGeometry(result.wkt, true, null, 100);
-        const addressCoords = toCoord.split(',')
+        minimap.current.getMapControl().setMarkingGeometry(result.wkt, true, null, 100);
+        const addressCoords = toCoord.split(',');
         const addressWkt = `POINT(${addressCoords[0]} ${addressCoords[1]})`;
         const dsDistrict = minimap.current.getSession().getDatasource('lk_school_road_skoledistrikter');
-        dsDistrict.execute({ command: 'read-intersects', school_id: schoolId, address_wkt: addressWkt}, (rows: DistrikterDataRow[]) => {
-            const district = rows.length > 0 ? rows[0].udd_distrikt_navn : null;
+        dsDistrict.execute({command: 'read-intersects',school_id: schoolId,address_wkt: addressWkt,},(rows: DistrikterDataRow[]) => {
+            const district =
+                rows.length > 0
+                    ? rows[0].udd_distrikt_navn
+                    : school.skole === 'International skole'
+                    ? 'International skole har skoledistrikt i hele kommunen'
+                    : null;
+            console.log('district: ', district);
             const res = {
                 ...result,
                 distance: parseInt(distance),
@@ -89,26 +92,26 @@ const App: FC = () => {
                 district,
             };
             setResult(res);
-        });
-
+        }
+        );
     };
-    
+
     return (
         <>
             <section className="hero is-info is-small">
-                {logo && <Navbar 
-                    logo={logo}
-                />}
+                {logo && <Navbar logo={logo} />}
             </section>
             <section className="section">
                 <div className="container">
                     <div className="columns">
                         <div className="column is-4 box">
-                            {kommunenr && <Form 
-                                data={skoleData} 
-                                onCalculate={calculate} 
-                                kommunenr={kommunenr}
-                            />}
+                            {kommunenr && (
+                                <Form
+                                    data={skoleData}
+                                    onCalculate={calculate}
+                                    kommunenr={kommunenr}
+                                />
+                            )}
                         </div>
                         <div className="column is-4 init-height">
                             {result && (
@@ -122,7 +125,7 @@ const App: FC = () => {
                                     schoolName={result.schoolName}
                                     schoolAddress={result.schoolAddress}
                                     grade={result.grade}
-                                    district ={result.district}
+                                    district={result.district}
                                 />
                             )}
                             {!result && (
@@ -134,18 +137,10 @@ const App: FC = () => {
                                                 berettiget til godtgørelse.
                                             </p>
                                             <ul>
-                                                <li>
-                                                    Vælg skole.
-                                                </li>
-                                                <li>
-                                                    Indtast elevadressen.
-                                                </li>
-                                                <li>
-                                                    Vælg klassetrin.
-                                                </li>
-                                                <li>
-                                                    Klik på Beregn.
-                                                </li>
+                                                <li>Vælg skole.</li>
+                                                <li>Indtast elevadressen.</li>
+                                                <li>Vælg klassetrin.</li>
+                                                <li>Klik på Beregn.</li>
                                             </ul>
                                         </div>
                                     </div>

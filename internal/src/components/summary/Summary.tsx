@@ -29,7 +29,7 @@ interface SummaryProps {
 }
 
 const Summary: FC = (props: SummaryProps) => {
-    console.log(props)
+    // console.log(props)
     const [isActive, setIsActive] = useState<boolean>(false);
 
     const entitled =
