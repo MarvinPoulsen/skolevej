@@ -68,3 +68,4 @@ Date		Version		Ini		Description
 2022-11-16	1.0.0		MARPO		Modulet oprettet
 2022-12-22	1.1.0		MARPO		Rutebeskrivelse tilføjet
 2023-01-04	1.2.0		MARPO		Tjek om elev og skole ligger i samme distrikt
+2023-01-05	1.2.1		MARPO		International skole har skoledistrikt i hele kommunen
