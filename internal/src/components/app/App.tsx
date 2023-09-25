@@ -64,7 +64,7 @@ const App: FC = () => {
         grade: string
     ) => {
         const siteUrl = minimap.current.getSession().getParam('cbinfo.site.url');
-        const apiUrl = minimap.current.getSession().getParam('module.spsroute.service.url');
+        const apiUrl = minimap.current.getSession().getParam('module.afstand.spsroute.routeservice');
         const routeProfile = minimap.current.getSession().getParam('module.school_road.route.profile');
         const school = skoleData.find((item) => item.id === schoolId);
         const url = `${siteUrl}${apiUrl}/route?profile=${routeProfile}&from=${school.latLong}&to=${toCoord}&srs=epsg:25832&lang=da`;
