@@ -78,10 +78,9 @@ const App: FC = () => {
             const district =
                 rows.length > 0
                     ? rows[0].udd_distrikt_navn
-                    : school.skole === 'International skole'
-                    ? 'International skole har skoledistrikt i hele kommunen'
+                    : school.skole === 'International skole' || school.skole === 'Specialskolens afdeling Horslunde'
+                    ? 'Har skoledistrikt i hele kommunen'
                     : null;
-            console.log('district: ', district);
             const res = {
                 ...result,
                 distance: parseInt(distance),
@@ -113,7 +112,7 @@ const App: FC = () => {
                                 />
                             )}
                         </div>
-                        <div className="column is-4 init-height">
+                        <div className="column is-4">
                             {result && (
                                 <Summary
                                     travelDistanceInMeter={
@@ -149,7 +148,7 @@ const App: FC = () => {
                         </div>
                         <Map
                             id={schoolsMinimapId}
-                            name="movingpatterns"
+                            name="schools"
                             size="is-4"
                             onReady={onMapReady}
                         />
